@@ -31,6 +31,9 @@ except ImportError:
     django_filters = None
 
 
+from .patch import set_default_version
+
+
 def get_view_description(view_cls, html=False, docstring=None):
     if docstring is not None:
         view_cls = type(
@@ -371,6 +374,8 @@ class BaseMethodIntrospector(object):
                 'paramType': 'path',
                 'required': True
             })
+
+        set_default_version(params)
 
         return params
 
