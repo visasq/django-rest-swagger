@@ -2,6 +2,7 @@ import datetime
 import platform
 import functools
 import os
+import copy
 import os.path
 from mock import Mock, patch
 from distutils.version import StrictVersion
@@ -37,7 +38,8 @@ from .urlparser import UrlParser
 from .docgenerator import DocumentationGenerator
 from .introspectors import ViewSetIntrospector, APIViewIntrospector, \
     WrappedAPIViewMethodIntrospector, IntrospectorHelper, \
-    APIViewMethodIntrospector
+    APIViewMethodIntrospector, get_data_type
+from . import DEFAULT_SWAGGER_SETTINGS
 
 
 def no_markdown(func):
@@ -446,6 +448,41 @@ class DocumentationGeneratorTest(TestCase, DocumentationGeneratorMixin):
 
         self.assertEqual('POST', operations[0]['method'])
 
+    def test_get_operations_default_anon_user(self):
+        class AnAPIView(APIView):
+            def post(self, *args, **kwargs):
+                pass
+
+        api = {
+            'path': 'a-path/',
+            'callback': AnAPIView,
+            'pattern': patterns('')
+        }
+
+        docgen = self.get_documentation_generator(for_user=None)
+        operations = docgen.get_operations(api)
+
+        self.assertEqual('POST', operations[0]['method'])
+
+    def test_get_operations_none_anon_user(self):
+        class AnAPIView(APIView):
+            def post(self, *args, **kwargs):
+                pass
+
+        api = {
+            'path': 'a-path/',
+            'callback': AnAPIView,
+            'pattern': patterns('')
+        }
+
+        swagger_settings = copy.deepcopy(DEFAULT_SWAGGER_SETTINGS)
+        swagger_settings['unauthenticated_user'] = None
+        with self.settings(SWAGGER_SETTINGS=swagger_settings):
+            docgen = self.get_documentation_generator(for_user=None)
+            operations = docgen.get_operations(api)
+
+        self.assertEqual('POST', operations[0]['method'])
+
     def test_get_operations_with_no_methods(self):
         class AnAPIView(APIView):
             pass
@@ -505,6 +542,16 @@ class DocumentationGeneratorTest(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(
             ["email", "content", "created"],
             list(models['CommentSerializer']['properties'].keys()))
+
+    def test_listfield_drf3(self):
+        if StrictVersion(rest_framework.VERSION) < StrictVersion('3.0'):
+            raise SkipTest('Only for DRF>=3.0')
+
+        from rest_framework.fields import ListField
+
+        list_field_data_type = get_data_type(ListField())
+
+        self.assertEqual(("array", "array"), list_field_data_type)
 
     def test_get_models_ordering_drf3(self):
         if StrictVersion(rest_framework.VERSION) < StrictVersion('3.0'):

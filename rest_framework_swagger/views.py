@@ -1,6 +1,7 @@
 import json
 from django.utils import six
 
+from django.conf import settings
 from django.views.generic import View
 from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_text
@@ -61,10 +62,21 @@ class SwaggerUIView(View):
             'swagger_settings': {
                 'discovery_url': "%s/api-docs/" % get_full_base_path(request),
                 'api_key': rfs.SWAGGER_SETTINGS.get('api_key', ''),
+                'api_version': rfs.SWAGGER_SETTINGS.get('api_version', ''),
                 'token_type': rfs.SWAGGER_SETTINGS.get('token_type'),
                 'enabled_methods': mark_safe(
                     json.dumps(rfs.SWAGGER_SETTINGS.get('enabled_methods'))),
                 'doc_expansion': rfs.SWAGGER_SETTINGS.get('doc_expansion', ''),
+            },
+            'rest_framework_settings': {
+                'DEFAULT_VERSIONING_CLASS':
+                    settings.REST_FRAMEWORK.get('DEFAULT_VERSIONING_CLASS', '')
+                    if hasattr(settings, 'REST_FRAMEWORK') else None,
+
+            },
+            'django_settings': {
+                'CSRF_COOKIE_NAME': mark_safe(
+                    json.dumps(getattr(settings, 'CSRF_COOKIE_NAME', 'csrftoken'))),
             }
         }
         response = render_to_response(
@@ -99,7 +111,7 @@ class SwaggerUIView(View):
 class SwaggerResourcesView(APIDocView):
     renderer_classes = (JSONRenderer, )
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         apis = [{'path': '/' + path} for path in self.get_resources()]
         return Response({
             'apiVersion': rfs.SWAGGER_SETTINGS.get('api_version', ''),
@@ -140,7 +152,7 @@ class SwaggerResourcesView(APIDocView):
 class SwaggerApiView(APIDocView):
     renderer_classes = (JSONRenderer, )
 
-    def get(self, request, path):
+    def get(self, request, path, *args, **kwargs):
         apis = self.get_apis_for_resource(path)
         generator = DocumentationGenerator(for_user=request.user)
         return Response({
