@@ -1,3 +1,9 @@
+# Forked from Django REST Swagger
+[marcgibbons/django-rest-swagger: Swagger Documentation Generator for Django REST Framework](https://github.com/marcgibbons/django-rest-swagger)
+
+
+
+
 # Django REST Swagger
 
 [![build-status-badge]][build-status]
