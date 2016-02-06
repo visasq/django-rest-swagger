@@ -12,7 +12,7 @@ DEFAULT_SWAGGER_SETTINGS = {
     'unauthenticated_user': 'django.contrib.auth.models.AnonymousUser',
     'permission_denied_handler': None,
     'resource_access_handler': None,
-    'template_path': 'rest_framework_swagger/index.html',
+    'template_path': 'rest_framework_swagger/index2.html',
     'doc_expansion': 'none',
 }
 
