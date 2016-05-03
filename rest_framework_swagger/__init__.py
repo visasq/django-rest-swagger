@@ -1,6 +1,7 @@
-VERSION = '0.3.5'
+VERSION = '0.3.6'
 
 DEFAULT_SWAGGER_SETTINGS = {
+    'exclude_url_names': [],
     'exclude_namespaces': [],
     'api_version': '',
     'api_path': '/',
