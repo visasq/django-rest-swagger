@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -52,7 +53,7 @@
               clientId: "your-client-id",
               clientSecret: "your-client-secret-if-required",
               realm: "your-realms",
-              appName: "your-app-name", 
+              appName: "your-app-name",
               scopeSeparator: ",",
               additionalQueryStringParams: {}
             });
@@ -78,6 +79,14 @@
         showRequestHeaders: false,
         enableCookies: true,
         withCredentials: true,
+        requestInterceptor: {
+          apply(req) {
+            const csrfCookieName = {{ django_settings.CSRF_COOKIE_NAME }};
+            const csrf = getCookie(csrfCookieName);
+            req.headers['X-CSRFToken'] = csrf;
+            return req;
+          },
+        },
       });
 
       function addApiKeyAuthorization(){
@@ -88,6 +97,18 @@
             log("added key " + key);
         }
       }
+      function getCookie(name) {
+        const cookieKey = name + '=';
+        const cookieKeyLen = cookieKey.length;
+        const cookieVal = document.cookie.split('; ').find(function(cookie) {
+          return cookie.startsWith(cookieKey);
+        });
+        if (!cookieVal) {
+          return void 0;
+        }
+        return decodeURIComponent(cookieVal.substring(cookieKeyLen).trim());
+      }
+
 
       $('#input_apiKey').change(addApiKeyAuthorization);
 
