@@ -1,3 +1,10 @@
+変更点 by @terasaka2k:
+  - 本家の新しいswagger-uiを利用
+    - ロードが高速
+  - visasq.git向けの調整
+
+
+
 # Forked from Django REST Swagger
 [marcgibbons/django-rest-swagger: Swagger Documentation Generator for Django REST Framework](https://github.com/marcgibbons/django-rest-swagger)
 
