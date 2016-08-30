@@ -1,3 +1,9 @@
+# Visasq向け変更点
+- `{version}`を自動で埋める
+
+なお、本家でDjango1.5対応はこの0.3.10までなので、今後のアップデートはない。
+
+
 # Django REST Swagger
 
 [![build-status-badge]][build-status]
