@@ -5,6 +5,7 @@
 import inspect
 import itertools
 import re
+import types
 import yaml
 import importlib
 
@@ -17,6 +18,7 @@ from django.utils.encoding import smart_text
 
 import rest_framework
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.compat import apply_markdown
 try:
     from rest_framework.fields import CurrentUserDefault
@@ -32,6 +34,28 @@ except ImportError:
 
 
 from .patch import set_default_version
+
+
+viewsets_mod_filename = viewsets.__file__
+if viewsets_mod_filename.endswith('.pyc'):
+    viewsets_mod_filename = viewsets_mod_filename[:-1]
+
+
+def deep_unwrap(func, api_callback):
+    for closure_var in func.__closure__ or ():
+        it = closure_var.cell_contents
+        if not isinstance(it, types.FunctionType):
+            continue
+
+        it_code = it.__code__
+        if it_code.co_name == 'view' and it_code.co_filename == viewsets_mod_filename:
+            cls = getattr(it, 'cls', None)
+            assert cls is api_callback.cls
+
+            yield it
+        else:
+            for x in deep_unwrap(it, api_callback):
+                yield x
 
 
 def get_view_description(view_cls, html=False, docstring=None):
@@ -653,26 +677,15 @@ class ViewSetIntrospector(BaseViewIntrospector):
         return stuff
 
     def _resolve_methods(self, pattern=None):
-        from .decorators import closure_n_code, get_closure_var
         if pattern is None:
             pattern = self.pattern
         callback = pattern.callback
 
-        try:
-            x = closure_n_code(callback)
+        view = next(iter(deep_unwrap(callback, callback)), None)
+        if not view:
+            raise RuntimeError('Unable to use callback invalid closure/function specified.')
 
-            while getattr(x.code, 'co_name') != 'view':
-                # lets unwrap!
-                callback = get_closure_var(callback)
-                x = closure_n_code(callback)
-
-            freevars = x.code.co_freevars
-        except (AttributeError, IndexError):
-            raise RuntimeError(
-                'Unable to use callback invalid closure/function ' +
-                'specified.')
-        else:
-            return x.closure[freevars.index('actions')].cell_contents
+        return view.__closure__[view.__code__.co_freevars.index('actions')].cell_contents
 
 
 class ViewSetMethodIntrospector(BaseMethodIntrospector):
