@@ -18,6 +18,13 @@ from .introspectors import (
 from .compat import OrderedDict
 
 
+def get_view_hint(method_introspector):
+    x = u'{}.{}'.format(method_introspector.get_module(), method_introspector.callback.__name__)
+    if method_introspector.method:
+        return x + '#' + method_introspector.method
+    return x
+
+
 class DocumentationGenerator(object):
     # Serializers defined in docstrings
     explicit_serializers = set()
@@ -91,6 +98,8 @@ class DocumentationGenerator(object):
                 doc_parser, serializer, introspector, method_introspector)
 
             operation = {
+                '_view_hint': get_view_hint(method_introspector),
+
                 'method': method_introspector.get_http_method(),
                 'summary': method_introspector.get_summary(),
                 'nickname': method_introspector.get_nickname(),

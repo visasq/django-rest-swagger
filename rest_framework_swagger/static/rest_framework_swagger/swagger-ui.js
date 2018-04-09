@@ -369,8 +369,7 @@ function program10(depth0,data) {
 
 function program12(depth0,data) {
 
-
-  return "\n          <h4>Response Class</h4>\n          <p><span class=\"model-signature\" /></p>\n          <br/>\n          <div class=\"response-content-type\" />\n        ";
+  return `\n          <h4>Response Class : ${depth0.viewHint || ''}</h4>\n          <p><span class=\"model-signature\" /></p>\n          <br/>\n          <div class=\"response-content-type\" />\n        `;
   }
 
 function program14(depth0,data) {

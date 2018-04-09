@@ -468,7 +468,7 @@ SwaggerResource.prototype.addOperations = function(resource_path, ops, consumes,
         }
       }
       o.nickname = this.sanitize(o.nickname);
-      op = new SwaggerOperation(o.nickname, resource_path, method, o.parameters, o.summary, o.notes, type, responseMessages, this, consumes, produces, o.authorizations);
+      op = new SwaggerOperation(o.nickname, resource_path, method, o.parameters, o.summary, o.notes, type, responseMessages, this, consumes, produces, o.authorizations, o._view_hint);
       this.operations[op.nickname] = op;
       output.push(this.operationsArray.push(op));
     }
@@ -654,8 +654,10 @@ SwaggerModelProperty.prototype.toString = function() {
   return str;
 };
 
-var SwaggerOperation = function(nickname, path, method, parameters, summary, notes, type, responseMessages, resource, consumes, produces, authorizations) {
+var SwaggerOperation = function(nickname, path, method, parameters, summary, notes, type, responseMessages, resource, consumes, produces, authorizations, viewHint) {
   var _this = this;
+
+  this.viewHint = viewHint;
 
   var errors = [];
   this.nickname = (nickname||errors.push("SwaggerOperations must have a nickname."));
