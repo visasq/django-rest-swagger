@@ -6,7 +6,6 @@ from django.views.generic import View
 from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_text
 from django.shortcuts import render_to_response
-from django.template import RequestContext
 from django.core.exceptions import PermissionDenied
 from .compat import import_string
 
@@ -81,7 +80,7 @@ class SwaggerUIView(View):
             }
         }
         response = render_to_response(
-            template_name, RequestContext(request, data))
+            template_name, data)
 
         return response
 
