@@ -1,4 +1,4 @@
 selenium==2.44.0
-Pillow==2.6.1
+Pillow==9.0.0
 Markdown==2.5.1
 Sphinx==1.2.3
